@@ -263,6 +263,10 @@ public class Main extends Application {
         return switchPane;
     }
 
+    public void getAccountManager() {
+
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
