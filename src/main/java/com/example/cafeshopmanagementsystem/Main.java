@@ -5,16 +5,20 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class Main extends Application {
     private AccountManager accountManager = new AccountManager();
+    Dashboard dashboard = new Dashboard();
     VBox loginForm, signUpForm, title;
+    Stage stage;
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage){
         loginForm = createLoginForm();
         title = titleForm();
         signUpForm = createRegisterForm();
@@ -105,6 +109,7 @@ public class Main extends Application {
             if (accountManager.verify(username, password)) {
                 warning.setText("Login successful!");
                 warning.setStyle("-fx-text-fill: green; -fx-font-family: \"Arial\";");
+                dashboard.showDashboard();
             } else {
                 warning.setText("Invalid username or password.");
                 warning.setStyle("-fx-text-fill: red; -fx-font-family: \"Arial\";");
@@ -261,10 +266,6 @@ public class Main extends Application {
 
         switchPane.getChildren().addAll(logo, systemTitle, createAccountButton, alreadyAccountButton);
         return switchPane;
-    }
-
-    public void getAccountManager() {
-
     }
 
     public static void main(String[] args) {
