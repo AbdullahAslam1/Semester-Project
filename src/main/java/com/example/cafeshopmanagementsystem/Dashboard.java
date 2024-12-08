@@ -1,5 +1,6 @@
 package com.example.cafeshopmanagementsystem;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -7,64 +8,35 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 public class Dashboard {
+
     public void showDashboard() {
         // New stage for the dashboard
         Stage dashboardStage = new Stage();
         dashboardStage.setTitle("Dashboard");
 
         // Create the top HBox for the label "FOOD HIVE"
-        HBox topHBox = new HBox(10); // Spacing of 10px between the label and any other controls
+        HBox topHBox = new HBox(10); // Spacing of 10px between elements
         topHBox.setAlignment(Pos.CENTER);
         topHBox.setStyle("-fx-padding: 10px;");
 
         Label foodHiveLabel = new Label("FOOD HIVE");
-        foodHiveLabel.getStyleClass().add("food-hive-label");  // Apply CSS class
+        foodHiveLabel.getStyleClass().add("food-hive-label"); // Apply CSS class
 
-        // Create buttons
-        Button restaurantsButton = new Button("Restaurants");
-        restaurantsButton.getStyleClass().add("button-style");  // Apply CSS class
-        Button categoriesButton = new Button("Categories");
-        categoriesButton.getStyleClass().add("button-style");  // Apply CSS class
-        Button anotherButton = new Button("Another Button");
-        anotherButton.getStyleClass().add("button-style");  // Apply CSS class
-
-        // Add action events to the buttons
-        restaurantsButton.setOnAction(e -> {
-            System.out.println("Restaurants button clicked");
-            // Add logic for Restaurants button
-        });
-        categoriesButton.setOnAction(e -> {
-            System.out.println("Categories button clicked");
-            // Add logic for Categories button
-        });
-        anotherButton.setOnAction(e -> {
-            System.out.println("Another button clicked");
-            // Add logic for the third button
-        });
-
-        // Create an HBox for the buttons
-        VBox buttonBox = new VBox(20); // 20px spacing between buttons
-        buttonBox.setAlignment(Pos.CENTER);
-        buttonBox.getChildren().addAll(restaurantsButton, categoriesButton, anotherButton);
-
-        // Add the label and buttons to the top HBox
-        topHBox.getChildren().addAll(foodHiveLabel);
+        // Add the label to the top HBox
+        topHBox.getChildren().add(foodHiveLabel);
 
         // Create three vertical boxes
         VBox vBox1 = new VBox(20);
         VBox vBox2 = new VBox(20);
         VBox vBox3 = new VBox(20);
 
-        // Set width of vboxes
-        vBox3.setPrefWidth(30);
-        vBox1.setPrefWidth(30);
+        // Set width for the VBoxes
+        vBox1.setMaxWidth(150);
+        vBox3.setMaxWidth(300);
 
         // Set padding and alignment for the vertical boxes
         vBox1.setAlignment(Pos.CENTER);
@@ -76,28 +48,61 @@ public class Dashboard {
         vBox2.getStyleClass().add("vbox2-style");
         vBox3.getStyleClass().add("vbox3-style");
 
-        // Add labels or other controls to the vertical boxes
-        vBox1.getChildren().add(buttonBox);
-        vBox2.getChildren().add(new Label("Inventory"));
-        vBox3.getChildren().add(new Label("Customers"));
+        // Add buttons to vBox1
+        Button restaurantsButton = new Button("Restaurants");
+        Button categoriesButton = new Button("Categories");
+        Button anotherButton = new Button("Another Button");
 
-        // Add TableView to the third VBox
+        VBox buttonBox = new VBox(20, restaurantsButton, categoriesButton, anotherButton);
+        buttonBox.setAlignment(Pos.CENTER);
+        vBox1.getChildren().add(buttonBox);
+
+        // Add a TilePane with a 3x3 grid of images to vBox2
+        TilePane tilePane = new TilePane();
+        tilePane.setPadding(new Insets(10));  // Padding around the grid
+        tilePane.setHgap(20);                // Horizontal gap between items
+        tilePane.setVgap(20);                // Vertical gap between items
+        tilePane.setPrefColumns(3);          // Set the number of columns in the grid
+        tilePane.setAlignment(Pos.CENTER);   // Align items in the center
+
+        // Add 9 items with images and descriptions
+        for (int i = 1; i <= 9; i++) {
+            VBox itemBox = new VBox(20);  // Spacing between image and description
+            itemBox.setAlignment(Pos.BOTTOM_CENTER);
+            itemBox.setStyle("-fx-border-color: lightgray; -fx-border-width: 1; -fx-padding: 10px;");
+            itemBox.setPrefSize(150, 100); // Increased size for each tile
+
+            // Example image content
+            //ImageView imageView = new ImageView(new Image("file:placeholder.jpg")); // Replace with actual image paths
+            // imageView.setFitWidth(100);
+            // imageView.setFitHeight(100);
+            // imageView.setPreserveRatio(true);
+            Label description = new Label("Item " + i + "\n$" + (5.0 * i)); // Example description
+            description.setStyle("-fx-font-size: 14; -fx-text-fill: gray; -fx-text-alignment: center;");
+            description.setWrapText(true);
+
+            itemBox.getChildren().addAll(description);
+            tilePane.getChildren().add(itemBox);
+        }
+
+        vBox2.getChildren().add(tilePane);
+
+        // Add a TableView to vBox3
         TableView<Item> tableView = new TableView<>();
 
         // Define columns for the TableView
         TableColumn<Item, String> itemNameColumn = new TableColumn<>("Item Name");
-        itemNameColumn.setMinWidth(100); // Adjusted width for better fit
+        itemNameColumn.setMinWidth(150);
         itemNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 
         TableColumn<Item, Integer> quantityColumn = new TableColumn<>("Quantity");
-        quantityColumn.setMinWidth(100); // Adjusted width for better fit
+        quantityColumn.setMinWidth(70);
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
         TableColumn<Item, Double> priceColumn = new TableColumn<>("Price");
-        priceColumn.setMinWidth(100); // Adjusted width for better fit
+        priceColumn.setMinWidth(70);
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
 
-        // Add columns to the TableView
         tableView.getColumns().addAll(itemNameColumn, quantityColumn, priceColumn);
 
         // Add sample data to the TableView
@@ -107,43 +112,27 @@ public class Dashboard {
                 new Item("Carrot", 20, 1.29)
         );
 
-        // Set VBox properties to make the TableView fit and leave space below
-        VBox.setVgrow(tableView, Priority.ALWAYS);  // Stop the TableView from growing
-
-        // Set the preferred and max height for the TableView
-        tableView.setPrefHeight(350);  // Set the height you want
-        tableView.setMaxHeight(350);
-
-        Region spacer = new Region();
-        spacer.setPrefHeight(20); // Set the height of the spacer
-
-        vBox3.getChildren().addAll(tableView, spacer);
+        vBox3.getChildren().addAll(new Label("Your Order"), tableView);
 
         // Create an HBox to place the vertical boxes horizontally
-        HBox hBox = new HBox(5); // Spacing between each VBox
+        HBox hBox = new HBox(5, vBox1, vBox2, vBox3); // Spacing between each VBox
         hBox.setAlignment(Pos.CENTER);
-        hBox.setStyle("-fx-background-color : white;");
-        hBox.getChildren().addAll(vBox1, vBox2, vBox3);
+        hBox.setStyle("-fx-background-color: white;");
 
-        // Make each VBox expand equally
+        // Allow the VBoxes to expand equally
         HBox.setHgrow(vBox1, Priority.ALWAYS);
         HBox.setHgrow(vBox2, Priority.ALWAYS);
         HBox.setHgrow(vBox3, Priority.ALWAYS);
 
         // Create a main VBox to hold the top HBox and the HBox containing the vertical boxes
-        VBox mainVBox = new VBox(10);
-        mainVBox.getChildren().addAll(topHBox, hBox);
-
-        // Allow the HBox to grow inside the VBox
+        VBox mainVBox = new VBox(10, topHBox, hBox);
         VBox.setVgrow(hBox, Priority.ALWAYS);
 
         // Set the scene and show the dashboard stage
-        Scene scene = new Scene(mainVBox, 1000, 600); // Increased height and width for the scene
-
-        // Link the CSS file
+        Scene scene = new Scene(mainVBox, 1000, 600);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-
         dashboardStage.setScene(scene);
         dashboardStage.show();
     }
+
 }

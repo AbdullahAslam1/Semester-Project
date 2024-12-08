@@ -12,9 +12,9 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    private AccountManager accountManager = new AccountManager();
+    public AccountManager accountManager = new AccountManager();
     Dashboard dashboard = new Dashboard();
-    VBox loginForm, signUpForm, title;
+    VBox loginForm, signUpForm, title ,forgotPasswordForm;
     Stage stage;
 
     @Override
@@ -22,18 +22,22 @@ public class Main extends Application {
         loginForm = createLoginForm();
         title = titleForm();
         signUpForm = createRegisterForm();
+        forgotPasswordForm = createForgotPasswordForm();
 
         StackPane root = new StackPane();
         StackPane.setAlignment(loginForm, Pos.CENTER_RIGHT);
         StackPane.setAlignment(signUpForm, Pos.CENTER_RIGHT);
+        StackPane.setAlignment(forgotPasswordForm, Pos.CENTER_RIGHT);
         StackPane.setAlignment(title, Pos.CENTER_LEFT);
 
         loginForm.setMaxSize(300, 200);
         signUpForm.setMaxSize(300, 200);
         title.setMaxSize(300, 600);
+        forgotPasswordForm.setMaxSize(300, 200);
 
         signUpForm.setVisible(false);
-        root.getChildren().addAll(title, loginForm, signUpForm);
+        forgotPasswordForm.setVisible(false);
+        root.getChildren().addAll(title, loginForm, signUpForm, forgotPasswordForm);
 
         Scene scene = new Scene(root, 600, 400);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
@@ -89,6 +93,10 @@ public class Main extends Application {
 
         Hyperlink forgotPasswordLink = new Hyperlink("Forgot Password?");
         forgotPasswordLink.getStyleClass().add("forgot-password-link");
+        forgotPasswordLink.setOnAction(e -> {
+            loginForm.setVisible(false);
+            forgotPasswordForm.setVisible(true);
+        });
 
         Button loginButton = new Button("Login");
         loginButton.getStyleClass().add("button-login");
@@ -266,6 +274,122 @@ public class Main extends Application {
 
         switchPane.getChildren().addAll(logo, systemTitle, createAccountButton, alreadyAccountButton);
         return switchPane;
+    }
+
+    private VBox createForgotPasswordForm() {
+        VBox forgotPassword = new VBox(10);
+        forgotPassword.setPadding(new Insets(10, 50, 50, 50));
+        forgotPassword.setAlignment(Pos.CENTER_LEFT);
+
+        Label forgotPasswordTitle = new Label("Forgot Password");
+        forgotPasswordTitle.getStyleClass().add("forgot-password-title");
+
+        Label enterEmailTitle = new Label("Enter your Email.");
+
+        TextField emailField = new TextField();
+        emailField.setPrefWidth(200);
+        emailField.setPrefHeight(30);
+
+        Button submitButton = new Button("Submit");
+        submitButton.getStyleClass().add("button-submit");
+        submitButton.setPrefWidth(200);
+        submitButton.setPrefHeight(20);
+
+        Label statusLabel = new Label();
+
+        // VBox to hold the new password fields
+        VBox resetPasswordForm = new VBox(20);
+        resetPasswordForm.setVisible(false);
+        resetPasswordForm.setManaged(false);
+
+        TextField newPasswordField = new TextField();
+        newPasswordField.setPromptText("New Password");
+        newPasswordField.setPrefWidth(200);
+        newPasswordField.setPrefHeight(20);
+
+        TextField confirmPasswordField = new TextField();
+        confirmPasswordField.setPromptText("Confirm New Password");
+        confirmPasswordField.setPrefWidth(200);
+        confirmPasswordField.setPrefHeight(20);
+
+        Button savePasswordButton = new Button("Save Password");
+        savePasswordButton.getStyleClass().add("button-save");
+        savePasswordButton.setPrefWidth(200);
+        savePasswordButton.setPrefHeight(20);
+
+        savePasswordButton.setOnAction(e -> {
+            String newPassword = newPasswordField.getText();
+            String confirmPassword = confirmPasswordField.getText();
+
+            if (newPassword.isEmpty() || confirmPassword.isEmpty()) {
+                statusLabel.setText("Please fill in all fields.");
+                statusLabel.setStyle("-fx-text-fill: red;");
+                return;
+            }
+            if (newPassword.length() < 8) {
+                statusLabel.setText("Password must be at least 8 characters long.");
+                statusLabel.setStyle("-fx-text-fill: red;");
+                return;
+            }
+            if (!newPassword.equals(confirmPassword)) {
+                statusLabel.setText("Passwords do not match.");
+                statusLabel.setStyle("-fx-text-fill: red;");
+                return;
+            }
+
+            // Update the password in the account manager
+            accountManager.updatePassword(emailField.getText(), newPassword);
+
+            // Show success message
+            statusLabel.setText("Password saved successfully!");
+            statusLabel.setStyle("-fx-text-fill: green;");
+
+            // Hide all forms and go back to the login page
+            forgotPassword.setVisible(false);
+            resetPasswordForm.setVisible(false);
+            loginForm.setVisible(true);
+        });
+
+        resetPasswordForm.getChildren().addAll(newPasswordField, confirmPasswordField, savePasswordButton);
+
+        submitButton.setOnAction(e -> {
+            String email = emailField.getText();
+            if (email.isEmpty()) {
+                statusLabel.setText("Please enter an email address.");
+                statusLabel.setStyle("-fx-text-fill: red;");
+            } else if (!accountManager.isEmailRegistered(email)) { // Check email validity
+                statusLabel.setText("Email not registered.");
+                statusLabel.setStyle("-fx-text-fill: red;");
+            } else {
+                statusLabel.setText("Email verified. Enter your new password.");
+                statusLabel.setStyle("-fx-text-fill: green;");
+                resetPasswordForm.setVisible(true);
+                resetPasswordForm.setManaged(true);
+            }
+        });
+
+        Button backButton = new Button("Back to Login");
+        backButton.getStyleClass().add("button-back");
+        backButton.setPrefWidth(200);
+        backButton.setPrefHeight(20);
+
+        // Event handling for the back button
+        backButton.setOnAction(e -> {
+            // Reset the visibility and fields when going back
+            resetPasswordForm.setVisible(false);
+            resetPasswordForm.setManaged(false);
+            statusLabel.setText("");
+            emailField.clear();
+            newPasswordField.clear();
+            confirmPasswordField.clear();
+
+            forgotPassword.setVisible(false);
+            loginForm.setVisible(true);
+        });
+
+        forgotPassword.getChildren().addAll(forgotPasswordTitle,enterEmailTitle , emailField, submitButton, statusLabel, resetPasswordForm, backButton);
+        forgotPassword.setMargin(forgotPasswordTitle , new Insets(25 , 0 ,0 ,0) );
+        return forgotPassword;
     }
 
     public static void main(String[] args) {
