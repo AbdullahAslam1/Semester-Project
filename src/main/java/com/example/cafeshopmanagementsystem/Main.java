@@ -4,21 +4,25 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
     public AccountManager accountManager = new AccountManager();
     Dashboard dashboard = new Dashboard();
-    VBox loginForm, signUpForm, title ,forgotPasswordForm;
+    VBox loginForm, signUpForm, title, forgotPasswordForm;
     Stage stage;
 
     @Override
-    public void start(Stage stage){
+    public void start(Stage stage) {
+        this.stage = stage;
         loginForm = createLoginForm();
         title = titleForm();
         signUpForm = createRegisterForm();
@@ -72,10 +76,7 @@ public class Main extends Application {
 
         CheckBox showPasswordCheckBox = new CheckBox("Show Password");
         showPasswordCheckBox.setStyle("-fx-text-fill: #000; -fx-font-family: \"Arial\";");
-
-        // Synchronize the text between the PasswordField and TextField
-        passwordTextField.textProperty().bindBidirectional(passwordField.textProperty());
-
+        
         // Toggle visibility on checkbox
         showPasswordCheckBox.setOnAction(e -> {
             if (showPasswordCheckBox.isSelected()) {
@@ -118,6 +119,14 @@ public class Main extends Application {
                 warning.setText("Login successful!");
                 warning.setStyle("-fx-text-fill: green; -fx-font-family: \"Arial\";");
                 dashboard.showDashboard();
+                usernameField.clear();
+                passwordField.clear();
+                stage.close();
+                try {
+                } catch (Exception ex) {
+                    System.out.println();
+                }
+
             } else {
                 warning.setText("Invalid username or password.");
                 warning.setStyle("-fx-text-fill: red; -fx-font-family: \"Arial\";");
@@ -128,7 +137,6 @@ public class Main extends Application {
         login.setMargin(loginTitle, new Insets(30, 0, 0, 0));
         return login;
     }
-
 
     private VBox createRegisterForm() {
         VBox register = new VBox(20);
@@ -245,7 +253,6 @@ public class Main extends Application {
 
         return register;
     }
-
 
     private VBox titleForm() {
         VBox switchPane = new VBox(20);
@@ -387,8 +394,8 @@ public class Main extends Application {
             loginForm.setVisible(true);
         });
 
-        forgotPassword.getChildren().addAll(forgotPasswordTitle,enterEmailTitle , emailField, submitButton, statusLabel, resetPasswordForm, backButton);
-        forgotPassword.setMargin(forgotPasswordTitle , new Insets(25 , 0 ,0 ,0) );
+        forgotPassword.getChildren().addAll(forgotPasswordTitle, enterEmailTitle, emailField, submitButton, statusLabel, resetPasswordForm, backButton);
+        forgotPassword.setMargin(forgotPasswordTitle, new Insets(25, 0, 0, 0));
         return forgotPassword;
     }
 

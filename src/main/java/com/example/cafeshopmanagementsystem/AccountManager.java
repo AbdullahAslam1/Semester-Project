@@ -6,8 +6,8 @@ import java.util.List;
 
 public class AccountManager {
 
-    private static final String ACCOUNTS_FILE = "accounts.dat"; // File to store account data
-    private List<Account> accounts; // List to hold Account objects
+    private static final String ACCOUNTS_FILE = "accounts.dat";
+    private List<Account> accounts;
 
     public AccountManager() {
         accounts = new ArrayList<>();
@@ -19,12 +19,21 @@ public class AccountManager {
         File file = new File(ACCOUNTS_FILE);
         if (file.exists()) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-                accounts = (List<Account>) ois.readObject();
+                Object data = ois.readObject();
+
+                // Check if the read object is a List<Account>
+                if (data instanceof List<?>) {
+                    // Safely cast and assign the value
+                    accounts = (List<Account>) data;
+                } else {
+                    System.err.println("Error: The file does not contain a valid List<Account>.");
+                }
             } catch (IOException | ClassNotFoundException e) {
                 System.err.println("Error loading accounts: " + e.getMessage());
             }
         }
     }
+
 
     // Method to save accounts to the file
     private void saveAccounts() {
@@ -51,7 +60,7 @@ public class AccountManager {
     public boolean verify(String username, String password) {
         for (Account account : accounts) {
             if (account.getUsername().equals(username) && account.getPassword().equals(password)) {
-                return true; // Found matching username and password
+                return true;
             }
         }
         return false;
