@@ -15,14 +15,17 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+
     public AccountManager accountManager = new AccountManager();
+    public AdminData adminData = new AdminData();
+    public AdminDashboard admindashboard = new AdminDashboard();
     Dashboard dashboard = new Dashboard();
     VBox loginForm, signUpForm, title, forgotPasswordForm;
-    Stage stage;
+    Stage stage = new Stage();
 
     @Override
     public void start(Stage stage) {
-        this.stage = stage;
+        dashboard.showDashboard();
         loginForm = createLoginForm();
         title = titleForm();
         signUpForm = createRegisterForm();
@@ -71,12 +74,17 @@ public class Main extends Application {
 
         // TextField for showing password dynamically
         TextField passwordTextField = new TextField();
-        passwordTextField.setManaged(false); // Not visible initially
+        passwordTextField.setManaged(false);
         passwordTextField.setVisible(false);
 
         CheckBox showPasswordCheckBox = new CheckBox("Show Password");
         showPasswordCheckBox.setStyle("-fx-text-fill: #000; -fx-font-family: \"Arial\";");
-        
+
+        passwordTextField.textProperty().bindBidirectional(passwordField.textProperty());
+
+        CheckBox adminCheckBox = new CheckBox("Admin");
+        showPasswordCheckBox.setStyle("-fx-text-fill: #000; -fx-font-family: \"Arial\";");
+
         // Toggle visibility on checkbox
         showPasswordCheckBox.setOnAction(e -> {
             if (showPasswordCheckBox.isSelected()) {
@@ -115,25 +123,31 @@ public class Main extends Application {
                 warning.setStyle("-fx-text-fill: red; -fx-font-family: \"Arial\";");
                 return;
             }
-            if (accountManager.verify(username, password)) {
+            if (adminCheckBox.isSelected()) {
+                if (username.equals(adminData.getName()) && password.equals(adminData.getPassword())) {
+                    admindashboard.showAdminDashboard();
+                    usernameField.clear();
+                    passwordField.clear();
+                } else {
+                    warning.setText("Invalid username or password.");
+                    warning.setStyle("-fx-text-fill: red; -fx-font-family: \"Arial\";");
+                }
+            } else if (accountManager.verify(username, password)) {
                 warning.setText("Login successful!");
                 warning.setStyle("-fx-text-fill: green; -fx-font-family: \"Arial\";");
                 dashboard.showDashboard();
                 usernameField.clear();
                 passwordField.clear();
+                this.stage = stage;
                 stage.close();
-                try {
-                } catch (Exception ex) {
-                    System.out.println();
-                }
-
             } else {
                 warning.setText("Invalid username or password.");
                 warning.setStyle("-fx-text-fill: red; -fx-font-family: \"Arial\";");
             }
         });
 
-        login.getChildren().addAll(loginTitle, usernameField, passwordField, passwordTextField, showPasswordCheckBox, forgotPasswordLink, loginButton, warning);
+        login.getChildren().addAll(loginTitle, usernameField, passwordField, passwordTextField, showPasswordCheckBox,
+                adminCheckBox, forgotPasswordLink, loginButton, warning);
         login.setMargin(loginTitle, new Insets(30, 0, 0, 0));
         return login;
     }
@@ -277,6 +291,7 @@ public class Main extends Application {
         alreadyAccountButton.setOnAction(e -> {
             loginForm.setVisible(true);
             signUpForm.setVisible(false);
+            stage.close();
         });
 
         switchPane.getChildren().addAll(logo, systemTitle, createAccountButton, alreadyAccountButton);
@@ -394,7 +409,8 @@ public class Main extends Application {
             loginForm.setVisible(true);
         });
 
-        forgotPassword.getChildren().addAll(forgotPasswordTitle, enterEmailTitle, emailField, submitButton, statusLabel, resetPasswordForm, backButton);
+        forgotPassword.getChildren().addAll(forgotPasswordTitle, enterEmailTitle, emailField, submitButton, statusLabel,
+                resetPasswordForm, backButton);
         forgotPassword.setMargin(forgotPasswordTitle, new Insets(25, 0, 0, 0));
         return forgotPassword;
     }
