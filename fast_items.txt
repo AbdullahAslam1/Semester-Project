@@ -1,0 +1,5 @@
+Burger,5.99,fast1.png
+Pizza,8.99,fast2.png
+Shawarma,7.49,fast3.png
+Wings,4.50,fast4.png
+Beef Burger,6.00,fast5.png

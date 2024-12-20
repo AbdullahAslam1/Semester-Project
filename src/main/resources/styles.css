@@ -19,7 +19,6 @@
     -fx-text-fill: white;
 }
 
-/* Hyperlink Styling */
 .hyperlink {
     -fx-font-size: 12px;
     -fx-text-fill: #232323;
@@ -45,7 +44,6 @@
 }
 
 .shift-pane {
-    /*-fx-background-color: #15151e;*/
     -fx-background-color: linear-gradient(to bottom ,#3C3C3C , #232323);
     -fx-padding: 50px;
 }
@@ -68,13 +66,10 @@
     -fx-background-color: linear-gradient(to bottom ,#3C3C3C , #232323);
 }
 
-
-/* Button Styles */
 .button-style {
     -fx-pref-width: 150px;
 }
 
-/* VBox styles */
 .vbox-style {
     -fx-spacing: 20px;
     -fx-padding: 20px;
@@ -87,19 +82,21 @@
     -fx-background-color: linear-gradient(to bottom ,#3C3C3C , #232323);
 }
 
-/* TableView Styles */
 .table-view {
     -fx-pref-height: 350px;
     -fx-max-height: 350px;
 }
 
-/* Labels in the VBoxes */
 .vbox-label {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
 }
 
-.restaurants-button, .categories-button, .home-button , .payButton   {
+.restaurants-button,
+.categories-button,
+.home-button,
+.payButton,
+.backButton {
     -fx-background-color: red;
     -fx-text-fill: white;
     -fx-font-size: 12px;
@@ -108,10 +105,11 @@
     -fx-cursor: hand;
 }
 
-
 .restaurants-button:hover,
 .categories-button:hover,
-.home-button:hover ,categories-comboBox ,.payButton {
+.home-button:hover,
+.payButton:hover,
+.backButton:hover {
     -fx-background-color: #ffce1b;
     -fx-text-fill: #333;
 }
@@ -123,8 +121,7 @@
     -fx-padding: 5px 10px;
     -fx-font-weight: bold;
 }
-/* Define the default style for the restaurant card */
-/* Default card style */
+
 .restaurantBox {
     -fx-border-color: white ;
     -fx-border-width: 4;
@@ -134,20 +131,18 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.2, 0, 0);
     -fx-padding: 10;
     -fx-transition: all 0.10s ease-in-out;
-    -fx-scale-x: 1; /* Initial scale */
-    -fx-scale-y: 1; /* Initial scale */
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
 }
 
-/* Hover effect for popup */
 .restaurantBox:hover {
-    -fx-background-color: #5A5A5A; /* Subtle color change */
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 15, 0.3, 0, 5); /* Enhanced shadow */
+    -fx-background-color: #5A5A5A;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 15, 0.3, 0, 5);
     -fx-scale-x: 1.1;
     -fx-scale-y: 1.1;
     -fx-translate-y: -5;
 }
 
-/* Default style for the nameLabel button */
 .nameLabel {
     -fx-background-color: red;
     -fx-text-fill: white;
@@ -158,14 +153,11 @@
     -fx-font-weight: bold;
 }
 
-/* Hover effect for nameLabel */
 .nameLabel:hover {
     -fx-background-color:  #ffce1b;
     -fx-text-fill: #333;
 }
 
-
-/* Styling the ComboBox itself */
 .categories-comboBox {
     -fx-background-color: red;
     -fx-font-size: 12px;
@@ -174,7 +166,6 @@
     -fx-cursor: hand;
 }
 
-/* Change prompt text color */
 .categories-comboBox .text-field .prompt-text {
     -fx-fill: white;
 }

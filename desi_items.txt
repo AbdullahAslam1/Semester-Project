@@ -1,0 +1,6 @@
+Chicken Karahi,5.99,desi1.png
+Biryani,8.99,desi2.png
+BBQ,7.49,desi3.png
+Naan,4.50,desi4.png
+Seekh Kabab,6.00,desi5.png
+Salad,3.50,desi6.png

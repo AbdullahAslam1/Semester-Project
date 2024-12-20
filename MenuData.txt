@@ -1,0 +1,9 @@
+Zinger Burger,5.99,/image1.png
+Karahi,8.99,/image2.png
+Cake,4.49,/image3.png
+Pizza,4.5,/image4.png
+Biryani,6.0,/image5.png
+Ice Cream,3.5,/image6.png
+Nuggets,2.99,/image7.png
+Kabab,3.0,/image8.png
+Milk Shake,1.99,/image9.png

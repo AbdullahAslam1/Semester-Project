@@ -12,6 +12,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.net.URL;
+import java.util.List;
+import javafx.animation.FadeTransition;
+import javafx.util.Duration;
+
 
 public class Dashboard {
 
@@ -90,7 +94,8 @@ public class Dashboard {
             showRestaurant.setVisible(false);
             categories.setVisible(false);
             vBox2.setVisible(true);
-            categoryComboBox.setValue(null);
+            categoryComboBox.setPromptText("Category");
+            //categoryComboBox.setValue(null);
             categoryComboBox.getEditor().clear();
         });
         homeButton.setPrefSize(220, 40);
@@ -103,7 +108,8 @@ public class Dashboard {
             categories.setVisible(false);
             showRestaurant.setVisible(true);
             showRestaurants();
-            categoryComboBox.setValue(null);
+            categoryComboBox.setPromptText("Category");
+            //categoryComboBox.setValue(null);
             categoryComboBox.getEditor().clear();
         });
 
@@ -136,7 +142,7 @@ public class Dashboard {
             }
         });
 
-        VBox buttonBox = new VBox(20, homeButton, restaurantsButton,  categoryComboBox);
+        VBox buttonBox = new VBox(20, homeButton, restaurantsButton,  categoryComboBox );
         buttonBox.setAlignment(Pos.CENTER);
         vBox1.getChildren().add(buttonBox);
     }
@@ -154,35 +160,33 @@ public class Dashboard {
         tilePane.setPrefColumns(3);
         tilePane.setAlignment(Pos.CENTER);
 
-        for (int i = 0; i < 9; i++) {
+        // Load menu items from the file
+        List<MenuItem> menuItems = DataLoader.loadMenuItems("MenuData.txt");
+
+        for (MenuItem menuItem : menuItems) {
             VBox itemBox = new VBox(5);
             itemBox.setAlignment(Pos.CENTER);
             itemBox.setStyle("-fx-border-color: lightgray; -fx-border-width: 1; -fx-padding: 10px;");
 
             // Loading image from the resource path
             ImageView imageView = null;
-            String imagePath = "/image" + (i + 1) + ".png";
-            URL resource = getClass().getResource(imagePath);
+            URL resource = getClass().getResource(menuItem.getImagePath());
             if (resource == null) {
-                System.out.println("Image not found: " + imagePath);
+                System.out.println("Image not found: " + menuItem.getImagePath());
             } else {
                 imageView = new ImageView(resource.toExternalForm());
             }
 
-            imageView.setFitWidth(250);
-            imageView.setFitHeight(80);
-            imageView.setPreserveRatio(true);
+            if (imageView != null) {
+                imageView.setFitWidth(250);
+                imageView.setFitHeight(80);
+                imageView.setPreserveRatio(true);
+            }
 
-            String[] itemNames = {"Burger", "Karahi", "Cake", "Pizza", "Biryani", "Ice Cream", "Nuggets", "Kabab", "Shakes"};
-            double[] itemPrices = {5.99, 8.99, 7.49, 4.50, 6.00, 3.50, 2.99, 3.00, 1.99};
-
-            String itemName = itemNames[i];
-            double itemPrice = itemPrices[i];
-
-            Label itemNameLabel = new Label(itemName);
+            Label itemNameLabel = new Label(menuItem.getName());
             itemNameLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #ffce1b;");
 
-            Label itemPriceLabel = new Label("$" + itemPrice);
+            Label itemPriceLabel = new Label("$" + menuItem.getPrice());
             itemPriceLabel.setStyle("-fx-font-size: 12; -fx-text-fill: white;");
 
             Label titleLabel = new Label("Select Quantity");
@@ -220,7 +224,7 @@ public class Dashboard {
                     + "    -fx-cursor: hand;");
             addToCartButton.setOnAction(event -> {
                 if (quantity[0] > 0) {
-                    addItemToTable(itemName, quantity[0], itemPrice * quantity[0]);
+                    addItemToTable(menuItem.getName(), quantity[0], menuItem.getPrice() * quantity[0]);
                     quantity[0] = 0;
                     quantityLabel.setText(String.valueOf(quantity[0]));
                 }
@@ -314,7 +318,6 @@ public class Dashboard {
         payButton.setPrefSize(220,40);
         payButton.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: white;");
         payButton.setOnAction(event -> {
-            tableView.getItems().clear();
 
             totalPriceLabel.setText("Total Price: $0.00");
 
@@ -337,6 +340,7 @@ public class Dashboard {
                 if (response == ButtonType.OK) {
                     if (cashCheckBox.isSelected()) {
                         paymentLabel.setText("Give cash to driver.");
+                        tableView.getItems().clear();
                     } else if (cardCheckBox.isSelected()) {
                         TextInputDialog pinDialog = new TextInputDialog();
                         pinDialog.setTitle("Enter PIN");
@@ -345,7 +349,7 @@ public class Dashboard {
 
                         pinDialog.showAndWait().ifPresent(pin -> {
                             if (pin != null && !pin.isEmpty()) {
-                                paymentLabel.setText("Order confirmed. Payment successful.");
+                                tableView.getItems().clear();
                             } else {
                                 paymentLabel.setText("Order cancelled.");
                             }
@@ -388,47 +392,42 @@ public class Dashboard {
         showRestaurant.getChildren().clear();
         showRestaurant.setPadding(new Insets(20));
 
+        // Load restaurant data using DataLoader
+        List<Restaurant> restaurants = DataLoader.loadRestaurants();
+
         // Create a FlowPane for restaurants
         FlowPane flowPane = new FlowPane();
-        flowPane.setPadding(new Insets(2 , 10 , 5 ,10));
+        flowPane.setPadding(new Insets(2, 10, 5, 10));
         flowPane.setHgap(25);
         flowPane.setVgap(25);
         flowPane.setPrefWidth(470);
         flowPane.setAlignment(Pos.CENTER);
 
-        String[][] restaurants = {
-                {"/kfc.png", "Amazing broast and burgers. Must visit!","KFC"},
-                {"/macdonald.png", "Best burgers fries in town.","Macdonald's"},
-                {"/ButtKarahi.png", "Delicious and consistent karahi.","Butt Karahi" },
-                {"/AlKhan.png", "Unlimited Buffet on daily basis.","Al-Khan"},
-                {"/monal.png","Monal Lahore is serving the finest Cuisines with a combination of traditional and exciting flavors.","Monal"},
-                {"/wok.png","Discover diverse flavors at our Hi-Tea Buffet that's just around the corner!!","Asian Wok"}
-        };
-
-        for (String[] restaurant : restaurants) {
+        for (Restaurant restaurant : restaurants) {
             // Create a VBox for each restaurant
             VBox restaurantBox = new VBox(5);
             restaurantBox.setPrefSize(180, 280);
             restaurantBox.getStyleClass().add("restaurantBox");
             restaurantBox.setAlignment(Pos.CENTER);
+
             // Add restaurant name and description
-            Button nameLabel = new Button(restaurant[2]);
-            nameLabel.setPrefSize(150 , 30);
+            Button nameLabel = new Button(restaurant.getName());
+            nameLabel.setPrefSize(150, 30);
             nameLabel.getStyleClass().add("nameLabel");
 
-            ImageView imageView = new ImageView(restaurant[0]);
+            ImageView imageView = new ImageView(restaurant.getImagePath());
             imageView.setFitWidth(230);
             imageView.setFitHeight(80);
             imageView.setPreserveRatio(true);
 
-            Label descriptionLabel = new Label(restaurant[1]);
+            Label descriptionLabel = new Label(restaurant.getDescription());
             descriptionLabel.setWrapText(true);
-            descriptionLabel.setStyle("-fx-text-fill: #ffce1b; -fx-font-size: 12; -fx-font-weight: bold; ");
+            descriptionLabel.setStyle("-fx-text-fill: #ffce1b; -fx-font-size: 12; -fx-font-weight: bold;");
 
             // Set action on restaurant button
-            nameLabel.setOnMouseClicked(event -> showMenu(restaurant[2]));
+            nameLabel.setOnMouseClicked(event -> showMenu(restaurant));
 
-            restaurantBox.getChildren().addAll(imageView, descriptionLabel , nameLabel);
+            restaurantBox.getChildren().addAll(imageView, descriptionLabel, nameLabel);
             flowPane.getChildren().add(restaurantBox);
         }
 
@@ -436,7 +435,7 @@ public class Dashboard {
     }
 
 
-    private void showMenu(String restaurantName) {
+    private void showMenu(Restaurant restaurant) {
         // Clear the existing content
         showRestaurant.getChildren().clear();
 
@@ -446,56 +445,11 @@ public class Dashboard {
 
         // Add a back button
         Button backButton = new Button("Back to Restaurants");
-        backButton.setStyle("-fx-font-size: 14; -fx-background-color: #ffce1b; -fx-text-fill: black;");
+        backButton.getStyleClass().add("backButton");
         backButton.setOnAction(event -> showRestaurants());
-        // Restaurant menu items
-        String[][] menuItems = null;
 
-        switch (restaurantName) {
-            case "KFC":
-                menuItems = new String[][]{
-                        {"Zinger Burger", "4.99", "/image1.png"},
-                        {"Chicken Wings", "5.99", "/wings.png"},
-                        {"Bucket Meal", "12.99", "/image7.png"}
-                };
-                break;
-            case "Macdonald's":
-                menuItems = new String[][]{
-                        {"Big Mac", "5.99", "/image1.png"},
-                        {"Fries", "2.99", "/fries.png"},
-                        {"McFlurry", "3.50", "/mcflurry.png"}
-                };
-                break;
-            case "Butt Karahi":
-                menuItems = new String[][]{
-                        {"Biryani", "15.99", "/image5.png"},
-                        {"Chicken Karahi", "12.99", "/image2.png"},
-                        {"Naan", "1.50", "/naan.png"}
-                };
-                break;
-            case "Monal":
-                menuItems = new String[][]{
-                        {"BBQ", "14.99", "/bbq.png"},
-                        {"Pasta", "19.99", "/pasta.png"}
-                };
-                break;
-            case "Al-Khan":
-                menuItems = new String[][]{
-                        {"Makhni Handi", "14.99", "/Handi.png"},
-                        {"Grilled Steak", "19.99", "/steak.png"}
-                };
-                break;
-            case "Asian Wok":
-                menuItems = new String[][]{
-                        {"Chow Mein", "14.99", "/chowmein.png"},
-                        {"Chicken Soup", "19.99", "/soup.png"},
-                        {"Egg Fried Rice", "10.00" ,"/rice.png"}
-                };
-                break;
-            default:
-                menuItems = new String[0][0];
-                break;
-        }
+        // Get menu items for the selected restaurant
+        List<MenuItem> menuItems = restaurant.getMenuItems();
 
         // Create a TilePane for menu items
         TilePane tilePane = new TilePane();
@@ -506,16 +460,16 @@ public class Dashboard {
         tilePane.setAlignment(Pos.CENTER);
 
         // Generate menu items
-        for (String[] menuItem : menuItems) {
+        for (MenuItem menuItem : menuItems) {
             VBox itemBox = new VBox(10);
             itemBox.setPadding(new Insets(10));
             itemBox.setAlignment(Pos.CENTER);
             itemBox.setStyle("-fx-border-color: lightgray; -fx-border-width: 1; -fx-padding: 10px;");
 
             // Menu item details
-            String itemName = menuItem[0];
-            double itemPrice = Double.parseDouble(menuItem[1]);
-            String imagePath = menuItem[2];
+            String itemName = menuItem.getName();
+            double itemPrice = menuItem.getPrice();
+            String imagePath = menuItem.getImagePath();
 
             // Load image
             ImageView imageView = null;
@@ -527,14 +481,12 @@ public class Dashboard {
                 imageView.setPreserveRatio(true);
             }
 
-            // Labels for name and price
             Label itemNameLabel = new Label(itemName);
             itemNameLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #ffce1b;");
 
             Label itemPriceLabel = new Label("$" + itemPrice);
             itemPriceLabel.setStyle("-fx-font-size: 12; -fx-text-fill: white;");
 
-            // Quantity controls
             HBox counterBox = new HBox(10);
             counterBox.setAlignment(Pos.CENTER);
 
@@ -549,10 +501,8 @@ public class Dashboard {
 
             counterBox.getChildren().addAll(quantityLabel);
 
-            // Array to track quantity (for use in lambda)
             final int[] quantity = {0};
 
-            // Minus button action
             minusButton.setOnAction(e -> {
                 if (quantity[0] > 0) {
                     quantity[0]--;
@@ -585,15 +535,15 @@ public class Dashboard {
             hBoxCart.setAlignment(Pos.CENTER);
             hBoxCart.getChildren().addAll(minusButton, addToCartButton, plusButton);
 
-            itemBox.getChildren().addAll(namePriceBox , imageView , counterBox ,hBoxCart);
+            itemBox.getChildren().addAll(namePriceBox, imageView, counterBox, hBoxCart);
 
             tilePane.getChildren().add(itemBox);
         }
 
-        showRestaurant.getChildren().addAll(backButton ,tilePane);
+        showRestaurant.getChildren().addAll(backButton, tilePane);
     }
 
-    private void displayFastFoodItem() {
+    private void displayItems(List<MenuItem> menuItems) {
         categories.getChildren().clear();
         categories.setAlignment(Pos.CENTER);
         categories.setPadding(new Insets(5));
@@ -605,89 +555,8 @@ public class Dashboard {
         tilePane.setPrefColumns(3);
         tilePane.setAlignment(Pos.CENTER);
 
-        for (int i = 0; i < 5; i++) {
-            VBox itemBox = new VBox(5);
-            itemBox.setAlignment(Pos.CENTER);
-            itemBox.setStyle("-fx-border-color: lightgray; -fx-border-width: 1; -fx-padding: 10px;");
-
-            // Loading image from the resource path
-            ImageView imageView = null;
-            String imagePath = "/fast" + (i + 1) + ".png";
-            URL resource = getClass().getResource(imagePath);
-            if (resource == null) {
-                System.out.println("Image not found: " + imagePath);
-            } else {
-                imageView = new ImageView(resource.toExternalForm());
-            }
-
-            imageView.setFitWidth(250);
-            imageView.setFitHeight(80);
-            imageView.setPreserveRatio(true);
-
-            String[] itemNames = {"Burger", "Pizza", "Shawarma", "Wings", "Beef Burger"};
-            double[] itemPrices = {5.99, 8.99, 7.49, 4.50, 6.00};
-
-            String itemName = itemNames[i];
-            double itemPrice = itemPrices[i];
-
-            Label itemNameLabel = new Label(itemName);
-            itemNameLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #ffce1b;");
-
-            Label itemPriceLabel = new Label("$" + itemPrice);
-            itemPriceLabel.setStyle("-fx-font-size: 12; -fx-text-fill: white;");
-
-            Label titleLabel = new Label("Select Quantity");
-            titleLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
-
-            HBox counterBox = new HBox(10);
-            counterBox.setAlignment(Pos.CENTER);
-
-            Button minusButton = new Button("-");
-            minusButton.getStyleClass().add("minus-button");
-
-            Label quantityLabel = new Label("0");
-            quantityLabel.setStyle("-fx-font-size: 16; -fx-background-color:transparent; -fx-text-fill:#ffce1b; ");
-
-            Button plusButton = new Button("+");
-            plusButton.getStyleClass().add("plus-button");
-
-            counterBox.getChildren().addAll(quantityLabel);
-
-            final int[] quantity = {0}; // Use array to modify in lambda
-            minusButton.setOnAction(e -> {
-                if (quantity[0] > 0) {
-                    quantity[0]--;
-                    quantityLabel.setText(String.valueOf(quantity[0]));
-                }
-            });
-            plusButton.setOnAction(e -> {
-                quantity[0]++;
-                quantityLabel.setText(String.valueOf(quantity[0]));
-            });
-
-            Button addToCartButton = new Button("Add to Order");
-            addToCartButton.setPrefSize(100, 20);
-            addToCartButton.setStyle("-fx-background-color: #ffce1b;  -fx-text-fill: black; -fx-border-radius: 5px;\n"
-                    + "    -fx-cursor: hand;");
-            addToCartButton.setOnAction(event -> {
-                if (quantity[0] > 0) {
-                    addItemToTable(itemName, quantity[0], itemPrice * quantity[0]);
-                    quantity[0] = 0;
-                    quantityLabel.setText(String.valueOf(quantity[0]));
-                }
-            });
-
-            // Create an HBox for name and price to be aligned horizontally
-            HBox namePriceBox = new HBox(10);
-            namePriceBox.setAlignment(Pos.CENTER);
-            namePriceBox.getChildren().addAll(itemNameLabel, itemPriceLabel);
-
-            HBox hBoxcart = new HBox(10);
-            hBoxcart.setAlignment(Pos.CENTER);
-            hBoxcart.getChildren().addAll(minusButton, addToCartButton, plusButton);
-
-            // Add the HBox (name and price) above the image in the VBox
-            itemBox.getChildren().addAll(namePriceBox, imageView, counterBox, hBoxcart);
+        for (MenuItem menuItem : menuItems) {
+            VBox itemBox = createItemBox(menuItem.getName(), menuItem.getPrice(), menuItem.getImagePath());
             tilePane.getChildren().add(itemBox);
         }
 
@@ -700,225 +569,118 @@ public class Dashboard {
                 }
             }
         });
+
         categories.getChildren().add(tilePane);
     }
 
-    private void displayDesiFoodItem() {
-        categories.getChildren().clear();
-        categories.setAlignment(Pos.CENTER);
-        categories.setPadding(new Insets(5));
 
-        TilePane tilePane = new TilePane();
-        tilePane.setPadding(new Insets(5));
-        tilePane.setHgap(10);
-        tilePane.setVgap(5);
-        tilePane.setPrefColumns(3);
-        tilePane.setAlignment(Pos.CENTER);
+    private VBox createItemBox(String itemName, double itemPrice, String imagePath) {
+        VBox itemBox = new VBox(5);
+        itemBox.setAlignment(Pos.CENTER);
+        itemBox.setStyle("-fx-border-color: lightgray; -fx-border-width: 1; -fx-padding: 10px;");
 
-        for (int i = 0; i < 6; i++) {
-            VBox itemBox = new VBox(5);
-            itemBox.setAlignment(Pos.CENTER);
-            itemBox.setStyle("-fx-border-color: lightgray; -fx-border-width: 1; -fx-padding: 10px;");
+        ImageView imageView = loadImage(imagePath);
 
-            // Loading image from the resource path
-            ImageView imageView = null;
-            String imagePath = "/desi" + (i + 1) + ".png";
-            URL resource = getClass().getResource(imagePath);
-            if (resource == null) {
-                System.out.println("Image not found: " + imagePath);
-            } else {
-                imageView = new ImageView(resource.toExternalForm());
-            }
+        Label itemNameLabel = new Label(itemName);
+        itemNameLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #ffce1b;");
 
-            imageView.setFitWidth(250);
-            imageView.setFitHeight(80);
-            imageView.setPreserveRatio(true);
+        Label itemPriceLabel = new Label("$" + itemPrice);
+        itemPriceLabel.setStyle("-fx-font-size: 12; -fx-text-fill: white;");
 
-            String[] itemNames = {"Chicker Karahi", "Biryani", "BBQ", "Naan", "Seekh Kabab", "Salad"};
-            double[] itemPrices = {5.99, 8.99, 7.49, 4.50, 6.00, 3.50};
+        Label titleLabel = new Label("Select Quantity");
+        titleLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
 
-            String itemName = itemNames[i];
-            double itemPrice = itemPrices[i];
+        HBox counterBox = createCounterBox();
 
-            Label itemNameLabel = new Label(itemName);
-            itemNameLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #ffce1b;");
+        Button addToCartButton = createAddToCartButton(itemName, itemPrice, counterBox);
 
-            Label itemPriceLabel = new Label("$" + itemPrice);
-            itemPriceLabel.setStyle("-fx-font-size: 12; -fx-text-fill: white;");
+        HBox namePriceBox = new HBox(10);
+        namePriceBox.setAlignment(Pos.CENTER);
+        namePriceBox.getChildren().addAll(itemNameLabel, itemPriceLabel);
 
-            Label titleLabel = new Label("Select Quantity");
-            titleLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
+        HBox hBoxcart = new HBox(10);
+        hBoxcart.setAlignment(Pos.CENTER);
+        hBoxcart.getChildren().addAll(counterBox, addToCartButton);
 
-            HBox counterBox = new HBox(10);
-            counterBox.setAlignment(Pos.CENTER);
+        itemBox.getChildren().addAll(namePriceBox, imageView, counterBox, hBoxcart);
 
-            Button minusButton = new Button("-");
-            minusButton.getStyleClass().add("minus-button");
-
-            Label quantityLabel = new Label("0");
-            quantityLabel.setStyle("-fx-font-size: 16; -fx-background-color:transparent; -fx-text-fill:#ffce1b; ");
-
-            Button plusButton = new Button("+");
-            plusButton.getStyleClass().add("plus-button");
-
-            counterBox.getChildren().addAll(quantityLabel);
-
-            final int[] quantity = {0}; // Use array to modify in lambda
-            minusButton.setOnAction(e -> {
-                if (quantity[0] > 0) {
-                    quantity[0]--;
-                    quantityLabel.setText(String.valueOf(quantity[0]));
-                }
-            });
-            plusButton.setOnAction(e -> {
-                quantity[0]++;
-                quantityLabel.setText(String.valueOf(quantity[0]));
-            });
-
-            Button addToCartButton = new Button("Add to Order");
-            addToCartButton.setPrefSize(100, 20);
-            addToCartButton.setStyle("-fx-background-color: #ffce1b;  -fx-text-fill: black; -fx-border-radius: 5px;\n"
-                    + "    -fx-cursor: hand;");
-            addToCartButton.setOnAction(event -> {
-                if (quantity[0] > 0) {
-                    addItemToTable(itemName, quantity[0], itemPrice * quantity[0]);
-                    quantity[0] = 0;
-                    quantityLabel.setText(String.valueOf(quantity[0]));
-                }
-            });
-
-            // Create an HBox for name and price to be aligned horizontally
-            HBox namePriceBox = new HBox(10);
-            namePriceBox.setAlignment(Pos.CENTER);
-            namePriceBox.getChildren().addAll(itemNameLabel, itemPriceLabel);
-
-            HBox hBoxcart = new HBox(10);
-            hBoxcart.setAlignment(Pos.CENTER);
-            hBoxcart.getChildren().addAll(minusButton, addToCartButton, plusButton);
-
-            itemBox.getChildren().addAll(namePriceBox, imageView, counterBox, hBoxcart);
-            tilePane.getChildren().add(itemBox);
-        }
-
-        tilePane.widthProperty().addListener((observable, oldValue, newValue) -> {
-            double tileWidth = newValue.doubleValue() / 3 - tilePane.getHgap() * 2;
-            for (Node node : tilePane.getChildren()) {
-                if (node instanceof VBox) {
-                    VBox item = (VBox) node;
-                    item.setPrefWidth(tileWidth);
-                }
-            }
-        });
-        categories.getChildren().add(tilePane);
+        return itemBox;
     }
 
-    private void displaySweatsItem() {
-        categories.getChildren().clear();
-        categories.setAlignment(Pos.CENTER);
-        categories.setPadding(new Insets(5));
-
-        TilePane tilePane = new TilePane();
-        tilePane.setPadding(new Insets(5));
-        tilePane.setHgap(10);
-        tilePane.setVgap(5);
-        tilePane.setPrefColumns(3);
-        tilePane.setAlignment(Pos.CENTER);
-
-        for (int i = 0; i < 4; i++) {
-            VBox itemBox = new VBox(5);
-            itemBox.setAlignment(Pos.CENTER);
-            itemBox.setStyle("-fx-border-color: lightgray; -fx-border-width: 1; -fx-padding: 10px;");
-
-            // Loading image from the resource path
-            ImageView imageView = null;
-            String imagePath = "/sweat" + (i + 1) + ".png";
-            URL resource = getClass().getResource(imagePath);
-            if (resource == null) {
-                System.out.println("Image not found: " + imagePath);
-            } else {
-                imageView = new ImageView(resource.toExternalForm());
-            }
-
-            imageView.setFitWidth(250);
-            imageView.setFitHeight(80);
-            imageView.setPreserveRatio(true);
-
-            String[] itemNames = {"Cake","Shakes", "Ice-Cream", "McFlurry"};
-            double[] itemPrices = {5.99, 8.99, 7.49, 4.50, 6.00};
-
-            String itemName = itemNames[i];
-            double itemPrice = itemPrices[i];
-
-            Label itemNameLabel = new Label(itemName);
-            itemNameLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #ffce1b;");
-
-            Label itemPriceLabel = new Label("$" + itemPrice);
-            itemPriceLabel.setStyle("-fx-font-size: 12; -fx-text-fill: white;");
-
-            Label titleLabel = new Label("Select Quantity");
-            titleLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
-
-            HBox counterBox = new HBox(10);
-            counterBox.setAlignment(Pos.CENTER);
-
-            Button minusButton = new Button("-");
-            minusButton.getStyleClass().add("minus-button");
-
-            Label quantityLabel = new Label("0");
-            quantityLabel.setStyle("-fx-font-size: 16; -fx-background-color:transparent; -fx-text-fill:#ffce1b; ");
-
-            Button plusButton = new Button("+");
-            plusButton.getStyleClass().add("plus-button");
-
-            counterBox.getChildren().addAll(quantityLabel);
-
-            final int[] quantity = {0}; // Use array to modify in lambda
-            minusButton.setOnAction(e -> {
-                if (quantity[0] > 0) {
-                    quantity[0]--;
-                    quantityLabel.setText(String.valueOf(quantity[0]));
-                }
-            });
-            plusButton.setOnAction(e -> {
-                quantity[0]++;
-                quantityLabel.setText(String.valueOf(quantity[0]));
-            });
-
-            Button addToCartButton = new Button("Add to Order");
-            addToCartButton.setPrefSize(100, 20);
-            addToCartButton.setStyle("-fx-background-color: #ffce1b;  -fx-text-fill: black; -fx-border-radius: 5px;\n"
-                    + "    -fx-cursor: hand;");
-            addToCartButton.setOnAction(event -> {
-                if (quantity[0] > 0) {
-                    addItemToTable(itemName, quantity[0], itemPrice * quantity[0]);
-                    quantity[0] = 0;
-                    quantityLabel.setText(String.valueOf(quantity[0]));
-                }
-            });
-
-            // Create an HBox for name and price to be aligned horizontally
-            HBox namePriceBox = new HBox(10);
-            namePriceBox.setAlignment(Pos.CENTER);
-            namePriceBox.getChildren().addAll(itemNameLabel, itemPriceLabel);
-
-            HBox hBoxcart = new HBox(10);
-            hBoxcart.setAlignment(Pos.CENTER);
-            hBoxcart.getChildren().addAll(minusButton, addToCartButton, plusButton);
-
-            // Add the HBox (name and price) above the image in the VBox
-            itemBox.getChildren().addAll(namePriceBox, imageView, counterBox, hBoxcart);
-            tilePane.getChildren().add(itemBox);
+    private ImageView loadImage(String imagePath) {
+        ImageView imageView = null;
+        URL resource = getClass().getResource(imagePath);
+        if (resource == null) {
+            System.out.println("Image not found: " + imagePath);
+        } else {
+            imageView = new ImageView(resource.toExternalForm());
         }
+        imageView.setFitWidth(250);
+        imageView.setFitHeight(80);
+        imageView.setPreserveRatio(true);
+        return imageView;
+    }
 
-        tilePane.widthProperty().addListener((observable, oldValue, newValue) -> {
-            double tileWidth = newValue.doubleValue() / 3 - tilePane.getHgap() * 2;
-            for (Node node : tilePane.getChildren()) {
-                if (node instanceof VBox) {
-                    VBox item = (VBox) node;
-                    item.setPrefWidth(tileWidth);
-                }
+    private HBox createCounterBox() {
+        HBox counterBox = new HBox(10);
+        counterBox.setAlignment(Pos.CENTER);
+
+        Button minusButton = new Button("-");
+        minusButton.getStyleClass().add("minus-button");
+
+        Label quantityLabel = new Label("0");
+        quantityLabel.setStyle("-fx-font-size: 16; -fx-background-color:transparent; -fx-text-fill:#ffce1b; ");
+
+        Button plusButton = new Button("+");
+        plusButton.getStyleClass().add("plus-button");
+
+        counterBox.getChildren().addAll(minusButton, quantityLabel, plusButton);
+
+        final int[] quantity = {0};
+        minusButton.setOnAction(e -> {
+            if (quantity[0] > 0) {
+                quantity[0]--;
+                quantityLabel.setText(String.valueOf(quantity[0]));
             }
         });
-        categories.getChildren().add(tilePane);
+        plusButton.setOnAction(e -> {
+            quantity[0]++;
+            quantityLabel.setText(String.valueOf(quantity[0]));
+        });
+
+        return counterBox;
+    }
+
+    private Button createAddToCartButton(String itemName, double itemPrice, HBox counterBox) {
+
+        Button addToCartButton = new Button("Add to Order");
+        addToCartButton.setPrefSize(100, 20);
+        addToCartButton.setStyle("-fx-background-color: #ffce1b;  -fx-text-fill: black; -fx-border-radius: 5px;\n"
+                + "    -fx-cursor: hand;");
+
+        addToCartButton.setOnAction(event -> {
+            Label quantityLabel = (Label) counterBox.getChildren().get(1); // Get quantity label
+            int quantity = Integer.parseInt(quantityLabel.getText());
+            if (quantity > 0) {
+                addItemToTable(itemName, quantity, itemPrice * quantity);
+                quantityLabel.setText("0");
+            }
+        });
+        return addToCartButton;
+    }
+
+    public void displayFastFoodItem() {
+        List<MenuItem> fastFoodItems = DataLoader.loadCategoryItems("fast");
+        displayItems(fastFoodItems);
+    }
+
+    public void displayDesiFoodItem() {
+        List<MenuItem> desiFoodItems = DataLoader.loadCategoryItems("desi");
+        displayItems(desiFoodItems);
+    }
+
+    public void displaySweatsItem() {
+        List<MenuItem> sweetsItems = DataLoader.loadCategoryItems("sweets");
+        displayItems(sweetsItems);
     }
 }

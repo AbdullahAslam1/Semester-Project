@@ -25,7 +25,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        dashboard.showDashboard();
+//        dashboard.showDashboard();
         loginForm = createLoginForm();
         title = titleForm();
         signUpForm = createRegisterForm();
@@ -233,8 +233,8 @@ public class Main extends Application {
         signupButton.setOnAction(e -> {
             String username = usernameField.getText();
             String email = emailField.getText();
-            String password = passwordField.getText(); // Get the password from the PasswordField
-            String confirmPassword = confirmPasswordField.getText(); // Get confirm password from PasswordField
+            String password = passwordField.getText();
+            String confirmPassword = confirmPasswordField.getText();
 
             if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 warning.setText("Please fill in all fields.");

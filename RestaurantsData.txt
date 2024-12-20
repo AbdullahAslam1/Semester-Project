@@ -1,0 +1,6 @@
+KFC,/kfc.png,"Amazing broast and burgers. Must visit!","Zinger Burger,4.99,/image1.png", "Chicken Wings,5.99,/wings.png", "Bucket Meal,12.99,/image7.png"
+Macdonald's,/macdonald.png,"Best burgers fries in town.","Big Mac,5.99,/image1.png", "Fries,2.99,/fries.png", "McFlurry,3.50,/mcflurry.png"
+Butt Karahi,/ButtKarahi.png,"Delicious and consistent karahi.","Biryani,15.99,/image5.png", "Chicken Karahi,12.99,/image2.png", "Naan,1.50,/naan.png"
+Monal,/monal.png,"Monal Lahore is serving the finest Cuisines with a combination of traditional and exciting flavors.","BBQ,14.99,/bbq.png", "Pasta,19.99,/pasta.png"
+Al-Khan,/AlKhan.png,"Unlimited Buffet on daily basis.","Makhni Handi,14.99,/Handi.png", "Grilled Steak,19.99,/steak.png"
+Asian Wok,/wok.png,"Discover diverse flavors at our Hi-Tea Buffet that's just around the corner!!","Chow Mein,14.99,/chowmein.png", "Chicken Soup,19.99,/soup.png", "Egg Fried Rice,10.00,/rice.png"

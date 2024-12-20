@@ -1,0 +1,4 @@
+Cake,5.99,sweat1.png
+Shakes,8.99,sweat2.png
+Ice-Cream,7.49,sweat3.png
+McFlurry,4.50,sweat4.png
